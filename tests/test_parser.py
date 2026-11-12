@@ -1,6 +1,6 @@
 import pytest
 
-from parser import recognize
+from src.parser import recognize
 
 
 @pytest.mark.parametrize(
