@@ -1,0 +1,63 @@
+INPUT JSON: examples/01_nullable_blocks.json
+{
+  "variables": ["S", "A", "B"],
+  "terminals": ["a", "b"],
+  "start": "S",
+  "productions": [
+    {"lhs": "S", "rhs": ["A", "B"]},
+    {"lhs": "A", "rhs": ["a", "A"]},
+    {"lhs": "A", "rhs": []},
+    {"lhs": "B", "rhs": ["b", "B"]},
+    {"lhs": "B", "rhs": []}
+  ]
+}
+
+PROGRAM OUTPUT
+Command: python3.14 main.py examples/01_nullable_blocks.json
+Python: 3.14.5 (64-bit)
+Actual interpreter: C:\Users\mlawrence\AppData\Local\Python\pythoncore-3.14-64\python.exe
+Exit status: 0
+
+1. Original grammar
+-------------------
+G = (V, Sigma, R, S)
+V = {A, B, S}
+Sigma = {"a", "b"}
+S = S
+R (5 distinct rules):
+  S -> A B
+  A -> epsilon
+  A -> "a" A
+  B -> epsilon
+  B -> "b" B
+Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped variable names).
+
+2. New-start handling
+---------------------
+G = (V, Sigma, R, S)
+V = {A, B, S}
+Sigma = {"a", "b"}
+S = S
+R (5 distinct rules):
+  S -> A B
+  A -> epsilon
+  A -> "a" A
+  B -> epsilon
+  B -> "b" B
+Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped variable names).
+
+The start variable does not occur on any RHS; no new start is needed.
+
+Matt Lawrence (grammar input): COMPLETE for this input.
+
+Conversion status: PENDING transformations from Steven Yang and Devin Finn; this is not a final CNF result.
+
+  Pending: Steven Yang: remove epsilon productions
+
+  Pending: Steven Yang: remove unit productions
+
+  Pending: Devin Finn: remove useless symbols
+
+  Pending: Devin Finn: replace terminals in long RHSs
+
+  Pending: Devin Finn: split long RHSs into binary rules

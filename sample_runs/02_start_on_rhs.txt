@@ -1,0 +1,55 @@
+INPUT JSON: examples/02_start_on_rhs.json
+{
+  "variables": ["S"],
+  "terminals": ["a", "b"],
+  "start": "S",
+  "productions": [
+    {"lhs": "S", "rhs": ["a", "S", "b"]},
+    {"lhs": "S", "rhs": []}
+  ]
+}
+
+PROGRAM OUTPUT
+Command: python3.14 main.py examples/02_start_on_rhs.json
+Python: 3.14.5 (64-bit)
+Actual interpreter: C:\Users\mlawrence\AppData\Local\Python\pythoncore-3.14-64\python.exe
+Exit status: 0
+
+1. Original grammar
+-------------------
+G = (V, Sigma, R, S)
+V = {S}
+Sigma = {"a", "b"}
+S = S
+R (2 distinct rules):
+  S -> epsilon
+  S -> "a" S "b"
+Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped variable names).
+
+2. New-start handling
+---------------------
+G = (V, Sigma, R, S)
+V = {S, S_0}
+Sigma = {"a", "b"}
+S = S_0
+R (3 distinct rules):
+  S_0 -> S
+  S -> epsilon
+  S -> "a" S "b"
+Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped variable names).
+
+The old start occurs on an RHS. Added fresh start S_0 and rule S_0 -> S. This preserves every terminal word, including epsilon. The temporary unit rule will be removed by Steven Yang.
+
+Matt Lawrence (grammar input): COMPLETE for this input.
+
+Conversion status: PENDING transformations from Steven Yang and Devin Finn; this is not a final CNF result.
+
+  Pending: Steven Yang: remove epsilon productions
+
+  Pending: Steven Yang: remove unit productions
+
+  Pending: Devin Finn: remove useless symbols
+
+  Pending: Devin Finn: replace terminals in long RHSs
+
+  Pending: Devin Finn: split long RHSs into binary rules

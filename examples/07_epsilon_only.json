@@ -1,0 +1,6 @@
+{
+  "variables": ["S"],
+  "terminals": [],
+  "start": "S",
+  "productions": [{"lhs": "S", "rhs": []}]
+}

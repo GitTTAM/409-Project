@@ -1,0 +1,57 @@
+INPUT LECTURE NOTATION: examples/lecture/06_matching_final_cnf.cfg
+V = {S0, S, Z1, X_a, X_b}
+Sigma = {a, b}
+Start = S0
+S0 -> X_aZ1 | ε
+S -> X_aZ1
+Z1 -> SX_b | b
+X_a -> a
+X_b -> b
+
+PROGRAM OUTPUT
+Command: python3.14 main.py examples/lecture/06_matching_final_cnf.cfg
+Python: 3.14.5 (64-bit)
+Actual interpreter: C:\Users\mlawrence\AppData\Local\Python\pythoncore-3.14-64\python.exe
+Exit status: 0
+
+1. Original grammar
+-------------------
+G = (V, Sigma, R, S)
+V = {S, S0, X_a, X_b, Z1}
+Sigma = {a, b}
+Start = S0
+S0 -> epsilon | X_aZ1
+S -> X_aZ1
+X_a -> a
+X_b -> b
+Z1 -> SX_b | b
+7 distinct rules; parentheses are literal terminals when declared.
+
+2. New-start handling
+---------------------
+G = (V, Sigma, R, S)
+V = {S, S0, X_a, X_b, Z1}
+Sigma = {a, b}
+Start = S0
+S0 -> epsilon | X_aZ1
+S -> X_aZ1
+X_a -> a
+X_b -> b
+Z1 -> SX_b | b
+7 distinct rules; parentheses are literal terminals when declared.
+
+The start variable does not occur on any RHS; no new start is needed.
+
+Matt Lawrence (grammar input): COMPLETE for this input.
+
+Conversion status: PENDING transformations from Steven Yang and Devin Finn; this is not a final CNF result.
+
+  Pending: Steven Yang: remove epsilon productions
+
+  Pending: Steven Yang: remove unit productions
+
+  Pending: Devin Finn: remove useless symbols
+
+  Pending: Devin Finn: replace terminals in long RHSs
+
+  Pending: Devin Finn: split long RHSs into binary rules

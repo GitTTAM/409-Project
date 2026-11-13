@@ -1,0 +1,15 @@
+INPUT JSON: examples/invalid/undeclared_symbol.json
+{
+  "variables": ["S", "A"],
+  "terminals": ["a"],
+  "start": "S",
+  "productions": [{"lhs": "S", "rhs": ["A", "Missing"]}]
+}
+
+PROGRAM OUTPUT
+Command: python3.14 main.py examples/invalid/undeclared_symbol.json
+Python: 3.14.5 (64-bit)
+Actual interpreter: C:\Users\mlawrence\AppData\Local\Python\pythoncore-3.14-64\python.exe
+Exit status: 2
+
+Input/output error: rule for 'S' contains undeclared RHS symbols: Missing
