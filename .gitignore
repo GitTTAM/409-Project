@@ -1,0 +1,5 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+Option1_Student1_Foundation.zip

@@ -1,0 +1,13 @@
+Command: python3.14 tools/check_role2.py --list-cases
+Python: 3.14.5 (64-bit)
+Actual interpreter: C:\Users\mlawrence\AppData\Local\Python\pythoncore-3.14-64\python.exe
+Exit status: 0
+
+Repeated nullable symbols
+Indirect epsilon
+Unit cycle with an exit
+Epsilon under the prepared start
+Already simplified
+Epsilon only
+Unit cycle with no terminal word
+Three nullable occurrences and whole token names

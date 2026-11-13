@@ -1,0 +1,12 @@
+{
+  "variables": ["Expr", "Term", "Tail"],
+  "terminals": ["id", "+"],
+  "start": "Expr",
+  "productions": [
+    {"lhs": "Expr", "rhs": ["Term"]},
+    {"lhs": "Expr", "rhs": ["Term", "Tail"]},
+    {"lhs": "Term", "rhs": ["id"]},
+    {"lhs": "Tail", "rhs": ["+", "Term", "Tail"]},
+    {"lhs": "Tail", "rhs": ["+", "Term"]}
+  ]
+}

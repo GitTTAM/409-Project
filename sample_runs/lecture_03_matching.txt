@@ -1,0 +1,46 @@
+INPUT LECTURE NOTATION: examples/lecture/03_matching.cfg
+V = {S}
+Sigma = {a, b}
+Start = S
+S -> aSb | ε
+
+PROGRAM OUTPUT
+Command: python3.14 main.py examples/lecture/03_matching.cfg
+Python: 3.14.5 (64-bit)
+Actual interpreter: C:\Users\mlawrence\AppData\Local\Python\pythoncore-3.14-64\python.exe
+Exit status: 0
+
+1. Original grammar
+-------------------
+G = (V, Sigma, R, S)
+V = {S}
+Sigma = {a, b}
+Start = S
+S -> epsilon | aSb
+2 distinct rules; parentheses are literal terminals when declared.
+
+2. New-start handling
+---------------------
+G = (V, Sigma, R, S)
+V = {S, S_0}
+Sigma = {a, b}
+Start = S_0
+S_0 -> S
+S -> epsilon | aSb
+3 distinct rules; parentheses are literal terminals when declared.
+
+The old start occurs on an RHS. Added fresh start S_0 and rule S_0 -> S. This preserves every terminal word, including epsilon. The temporary unit rule will be removed by Steven Yang.
+
+Matt Lawrence (grammar input): COMPLETE for this input.
+
+Conversion status: PENDING transformations from Steven Yang and Devin Finn; this is not a final CNF result.
+
+  Pending: Steven Yang: remove epsilon productions
+
+  Pending: Steven Yang: remove unit productions
+
+  Pending: Devin Finn: remove useless symbols
+
+  Pending: Devin Finn: replace terminals in long RHSs
+
+  Pending: Devin Finn: split long RHSs into binary rules

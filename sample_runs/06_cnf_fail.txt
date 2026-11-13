@@ -1,0 +1,25 @@
+Command: python3.14 main.py --check-cnf examples/03_multichar_unit.json
+Python: 3.14.5 (64-bit)
+Actual interpreter: C:\Users\mlawrence\AppData\Local\Python\pythoncore-3.14-64\python.exe
+Exit status: 1
+
+Candidate CNF grammar
+---------------------
+G = (V, Sigma, R, S)
+V = {Expr, Tail, Term}
+Sigma = {"+", "id"}
+S = Expr
+R (5 distinct rules):
+  Expr -> Term
+  Expr -> Term Tail
+  Tail -> "+" Term
+  Tail -> "+" Term Tail
+  Term -> "id"
+Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped variable names).
+
+CNF checks: FAIL
+  UNIT_RULE: A one-symbol RHS must be a terminal, not a variable. [Expr -> Term]
+  BINARY_TERMINAL: A two-symbol RHS must contain two variables. [Tail -> "+" Term]
+  LONG_RULE: CNF permits no RHS longer than two symbols. [Tail -> "+" Term Tail]
+Structural checks only; supply --source to verify epsilon membership against an original grammar.
+Rule shapes and epsilon checks do not prove full language equivalence.

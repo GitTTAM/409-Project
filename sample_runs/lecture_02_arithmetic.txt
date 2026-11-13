@@ -1,0 +1,52 @@
+INPUT LECTURE NOTATION: examples/lecture/02_arithmetic.cfg
+V = {E, T, F}
+Sigma = {a, +, *, (, )}
+Start = E
+E -> E+T | T
+T -> T*F | F
+F -> (E) | a
+
+PROGRAM OUTPUT
+Command: python3.14 main.py examples/lecture/02_arithmetic.cfg
+Python: 3.14.5 (64-bit)
+Actual interpreter: C:\Users\mlawrence\AppData\Local\Python\pythoncore-3.14-64\python.exe
+Exit status: 0
+
+1. Original grammar
+-------------------
+G = (V, Sigma, R, S)
+V = {E, F, T}
+Sigma = {(, ), *, +, a}
+Start = E
+E -> E+T | T
+F -> (E) | a
+T -> F | T*F
+6 distinct rules; parentheses are literal terminals when declared.
+
+2. New-start handling
+---------------------
+G = (V, Sigma, R, S)
+V = {E, E_0, F, T}
+Sigma = {(, ), *, +, a}
+Start = E_0
+E_0 -> E
+E -> E+T | T
+F -> (E) | a
+T -> F | T*F
+7 distinct rules; parentheses are literal terminals when declared.
+
+The old start occurs on an RHS. Added fresh start E_0 and rule E_0 -> E. This preserves every terminal word, including epsilon. The temporary unit rule will be removed by Steven Yang.
+
+Matt Lawrence (grammar input): COMPLETE for this input.
+
+Conversion status: PENDING transformations from Steven Yang and Devin Finn; this is not a final CNF result.
+
+  Pending: Steven Yang: remove epsilon productions
+
+  Pending: Steven Yang: remove unit productions
+
+  Pending: Devin Finn: remove useless symbols
+
+  Pending: Devin Finn: replace terminals in long RHSs
+
+  Pending: Devin Finn: split long RHSs into binary rules
