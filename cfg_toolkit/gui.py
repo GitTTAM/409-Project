@@ -10,7 +10,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from tkinter.scrolledtext import ScrolledText
 
-from .gui_support import added_rule_lines, explain_input_error
+from .gui_support import explain_input_error
 from .learning import (
     LESSONS,
     ROOT,
@@ -21,6 +21,7 @@ from .learning import (
 from .lecture import dumps_lecture, loads_lecture
 from .model import GrammarError
 from .start_symbol import prepare_start
+from .pipeline import run_pipeline
 
 
 EXAMPLES = (
@@ -31,7 +32,7 @@ EXAMPLES = (
     ("Ambiguous input (fix me)", "examples/practice/ambiguous.cfg"),
 )
 FILE_TYPES = (("Grammar", "*.cfg"),)
-PENDING_NOTE = "Full CNF conversion is still pending."
+PENDING_NOTE = "Next: Devin's CNF steps. Full conversion is still pending."
 
 
 class GrammarApp:
@@ -42,6 +43,7 @@ class GrammarApp:
         self.root = Path(root)
         self.grammar = None
         self.preparation = None
+        self.pipeline_result = None
         self.validated_input = None
         self.loaded_path = None
         self.dirty = False
@@ -233,20 +235,20 @@ class GrammarApp:
         self.run_button.pack(side="left", padx=(0, 8))
         self.save_button = ttk.Button(
             actions,
-            text="Save prepared...",
-            command=self.save_prepared,
+            text="Save result...",
+            command=self.save_result,
             state="disabled",
         )
         self.save_button.pack(side="left")
         ttk.Label(
             self.workspace,
-            text="Green = added rule   |   Blue = changed declaration",
+            text="Green = new or changed rule   |   Blue = changed declaration",
             foreground="#34634b",
         ).grid(row=4, column=0, sticky="w", pady=(0, 6))
         comparison = ttk.Panedwindow(self.workspace, orient="horizontal")
         comparison.grid(row=5, column=0, sticky="nsew")
         self.original_view = self._comparison_panel(comparison, "Original grammar")
-        self.prepared_view = self._comparison_panel(comparison, "Prepared grammar")
+        self.result_view = self._comparison_panel(comparison, "After Steven's steps")
         ttk.Label(self.workspace, text=PENDING_NOTE, wraplength=1080).grid(
             row=6, column=0, sticky="w", pady=(9, 0)
         )
@@ -375,6 +377,7 @@ class GrammarApp:
     def _invalidate_results(self, message):
         self.grammar = None
         self.preparation = None
+        self.pipeline_result = None
         self.validated_input = None
         self.save_button.configure(state="disabled")
         self.editor.tag_remove("error_line", "1.0", "end")
@@ -463,21 +466,23 @@ class GrammarApp:
             return False
         self.grammar = grammar
         self.preparation = None
+        self.pipeline_result = None
         self.validated_input = text
         self.save_button.configure(state="disabled")
         self.editor.tag_remove("error_line", "1.0", "end")
         self._render_results()
-        self._put(self.feedback, "Valid grammar.\n\nClick Run to prepare the start.")
+        self._put(self.feedback, "Valid grammar.\n\nClick Run to continue.")
         self.status.set("Validation passed.")
         self._render_walkthrough()
         return True
 
     def run_input(self):
-        """Check current input, then prepare its start and show both grammars."""
+        """Run every available step and show the grammar ready for Devin."""
         self._refresh_if_edited()
         if self.grammar is None and not self.validate_input():
             return False
         self.preparation = prepare_start(self.grammar)
+        self.pipeline_result = run_pipeline(self.grammar)
         self._render_results()
         self.save_button.configure(state="normal")
         if self.preparation.added:
@@ -490,11 +495,15 @@ class GrammarApp:
                     self.grammar.start
                 )
             )
-        self._put(self.feedback, message)
+        self._put(
+            self.feedback,
+            message + "\n\nSteven's steps finished: epsilon and unit rules removed."
+            "\n\nNext: Devin's CNF steps.",
+        )
         self.status.set(
-            "Start preparation finished. "
+            "Run finished. "
             + (
-                "Added rules are highlighted green."
+                "Result is ready for Devin."
                 if self.preparation.added
                 else "No new start was needed."
             )
@@ -510,25 +519,26 @@ class GrammarApp:
             )
         else:
             self._put(self.original_view, dumps_lecture(self.grammar))
-        if self.preparation is None:
+        if self.pipeline_result is None:
             self._put(
-                self.prepared_view,
-                "Click Run to prepare the start and compare results.",
+                self.result_view,
+                "Click Run to see the result after epsilon and unit removal.",
             )
             return
-        original = dumps_lecture(self.preparation.original)
-        prepared = dumps_lecture(self.preparation.grammar)
-        self._put(self.prepared_view, prepared)
-        added = added_rule_lines(self.preparation)
+        original = dumps_lecture(self.grammar)
+        current = dumps_lecture(self.pipeline_result.snapshots[-1].grammar)
+        self._put(self.result_view, current)
         original_lines = set(original.splitlines())
-        for number, line in enumerate(prepared.splitlines(), 1):
+        for number, line in enumerate(current.splitlines(), 1):
             tag = None
-            if line in added:
-                tag = "added"
-            elif line not in original_lines:
-                tag = "declaration"
+            if line not in original_lines:
+                tag = (
+                    "declaration"
+                    if line.startswith(("V =", "Sigma =", "Start ="))
+                    else "added"
+                )
             if tag:
-                self.prepared_view.tag_add(
+                self.result_view.tag_add(
                     tag, "{}.0".format(number), "{}.end+1c".format(number)
                 )
 
@@ -566,25 +576,26 @@ class GrammarApp:
         self.editor.edit_modified(False)
         self.status.set("Saved input: {}".format(path.name))
 
-    def save_prepared(self):
+    def save_result(self):
         self._refresh_if_edited()
-        if self.preparation is None:
+        if self.pipeline_result is None:
             return
-        path = self._choose_save_path("Save prepared grammar", "prepared.cfg")
+        path = self._choose_save_path("Save current result", "for_devin.cfg")
         if path is None:
             return
         try:
             if self.loaded_path is not None and path == self.loaded_path:
                 raise GrammarError(
-                    "Prepared output must not overwrite the input file. Choose another name."
+                    "Result must not overwrite the input file. Choose another name."
                 )
-            path.write_text(dumps_lecture(self.preparation.grammar), encoding="utf-8")
+            current = self.pipeline_result.snapshots[-1].grammar
+            path.write_text(dumps_lecture(current), encoding="utf-8")
         except (GrammarError, OSError, UnicodeError) as error:
             messagebox.showerror(
-                "Could not save prepared grammar", str(error), parent=self.window
+                "Could not save result", str(error), parent=self.window
             )
             return
-        self.status.set("Saved prepared grammar: {}".format(path.name))
+        self.status.set("Saved result: {}".format(path.name))
 
     def _render_walkthrough(self):
         step = walkthrough_steps(self.grammar, self.preparation)[self.walkthrough_index]

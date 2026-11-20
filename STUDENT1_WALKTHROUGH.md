@@ -15,10 +15,10 @@ owns CNF transformation (role 3). Steven and Devin also help with testing.
    and validates the current editor input; step 2 shows the stored tuples.
 3. Click **Next** for the validation explanation, then **Next** for actual
    start preparation. Use **Show Python function** to open the code for a step.
-4. Close Help. Point out `S_0 -> S`, the new start declaration,
-   and the old rules that stayed in both views.
+4. Close Help. The right view now includes Steven's steps: `S_0` keeps epsilon,
+   and the temporary `S_0 -> S` unit rule has been replaced.
 5. Reopen **Help > Walkthrough** and use **Back** to reach step 2. Explain the empty tuple.
-6. Save the prepared result as `prepared.cfg`.
+6. Use **Save result** to save `for_devin.cfg`.
 7. Load **No new start needed** and predict the difference.
 8. Load **Ambiguous input (fix me)** and click **Run**. Read the highlighted line
    and correction tip. Replace `S -> ABCa` with `S -> A B C a`, then click **Run**.
@@ -118,8 +118,8 @@ Every old rule stays. If `S_0` is already a variable or terminal, the program
 tries `S_1`, `S_2`, and so on. If S never appears on a right side, no wrapper is
 needed, even when it produces epsilon.
 
-Steven Yang will later remove the temporary unit rule and handle epsilon for the
-prepared start. This step alone is not the finished CNF conversion.
+Steven Yang's connected steps remove the temporary unit rule and handle epsilon
+for the prepared start. This step alone is not the finished CNF conversion.
 
 Look at `prepare_start()` in [start_symbol.py](cfg_toolkit/start_symbol.py) and
 `StartSymbolTests.test_name_collision_checks_variables_and_terminals`

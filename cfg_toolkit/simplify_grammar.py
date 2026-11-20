@@ -1,9 +1,16 @@
+"""Steven Yang's epsilon removal and the team's checked unit-rule removal."""
+
 import itertools
 
 from cfg_toolkit.model import Grammar, Production
 
 
 def eliminate_ε_prods(grammar: Grammar) -> Grammar:
+    """Drop nullable occurrences and keep epsilon only for the prepared start.
+
+    Call prepare_start() first. Its start cannot appear on a right side, so
+    keeping that start's epsilon rule cannot leave other nullable occurrences.
+    """
     # separate epsilon rules from others
     epsilon_rules = set()
     other_rules = set()
@@ -33,6 +40,7 @@ def eliminate_ε_prods(grammar: Grammar) -> Grammar:
 
 
 def sub_with_ε(var: str, rule: Production):
+    """Yield rules made by omitting any nonempty selection of this variable."""
     # get indices of all variables to replace
     indices = [i for i, v in enumerate(rule.rhs) if v == var]
     for r in range(1, len(indices) + 1):
@@ -45,27 +53,28 @@ def sub_with_ε(var: str, rule: Production):
 
 
 def eliminate_unit_prods(grammar: Grammar) -> Grammar:
-    # separate unit rules from others
-    unit_rules = []
-    other_rules = []
-    for r in grammar.productions:
-        if len(r.rhs) == 1 and r.rhs[0] in grammar.variables:
-            unit_rules.append(r)
+    """Follow unit chains, then copy each reachable variable's non-unit rules.
+
+    For A -> B -> C, A inherits C's ordinary rules as well as B's. The visited
+    set also stops cycles such as A -> B -> A. Unused variables stay for Devin.
+    """
+    unit_targets = {variable: set() for variable in grammar.variables}
+    ordinary = {variable: set() for variable in grammar.variables}
+    for rule in grammar.productions:
+        if len(rule.rhs) == 1 and rule.rhs[0] in grammar.variables:
+            unit_targets[rule.lhs].add(rule.rhs[0])
         else:
-            other_rules.append(r)
+            ordinary[rule.lhs].add(rule.rhs)
 
-    removed_already = set(unit_rules)  # unit-rules removed already
-    while unit_rules:
-        u_rule = unit_rules.pop()
-        for o_rule in other_rules:
-            # A -> B, B -> xyz => A -> xyz
-            if u_rule.rhs == o_rule.lhs:
-                new_rule = Production(u_rule.lhs, o_rule.rhs)
-                if len(new_rule.rhs) == 1 and new_rule not in removed_already:
-                    unit_rules.append(new_rule)
-                other_rules.append(new_rule)
-        removed_already.add(u_rule)
-
-    return Grammar(
-        grammar.variables, grammar.terminals, frozenset(other_rules), grammar.start
-    )
+    rules = set()
+    for variable in grammar.variables:
+        reachable = {variable}
+        pending = [variable]
+        while pending:
+            current = pending.pop()
+            for target in unit_targets[current] - reachable:
+                reachable.add(target)
+                pending.append(target)
+        for target in reachable:
+            rules.update(Production(variable, rhs) for rhs in ordinary[target])
+    return Grammar(grammar.variables, grammar.terminals, rules, grammar.start)

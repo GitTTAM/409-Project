@@ -1,10 +1,9 @@
 """Load Steven Yang's module and check its real Grammar results.
 
 Run from the project folder:
-    python3.14 tools/check_role2.py src.simplify_grammar
+    python3.14 tools/check_role2.py
 
-No implementation is bundled here. A missing module returns 2; failed checks
-return 1. Neither counts as a passing simplification run.
+A missing module returns 2; failed checks return 1.
 """
 
 import argparse
@@ -22,7 +21,12 @@ from tests.role2_contract import EXAMPLES, make_suite
 
 def main(arguments=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("module", nargs="?", help="Module holding both functions")
+    parser.add_argument(
+        "module",
+        nargs="?",
+        default="cfg_toolkit.simplify_grammar",
+        help="Module holding both functions",
+    )
     parser.add_argument("--epsilon", default="eliminate_ε_prods")
     parser.add_argument("--units", default="eliminate_unit_prods")
     parser.add_argument("--list-cases", action="store_true")
@@ -31,8 +35,6 @@ def main(arguments=None):
         for case in EXAMPLES:
             print(case.name)
         return 0
-    if not options.module:
-        parser.error("give a module name, such as src.simplify_grammar")
     try:
         module = importlib.import_module(options.module)
         functions = [getattr(module, name) for name in (options.epsilon, options.units)]

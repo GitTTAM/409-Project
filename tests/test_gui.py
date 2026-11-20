@@ -14,7 +14,7 @@ try:
 except ImportError:
     tk = None
 
-from cfg_toolkit import read_document
+from cfg_toolkit import read_document, loads_lecture as read_document_text
 
 
 @unittest.skipIf(tk is None, "Tkinter is not installed")
@@ -61,12 +61,17 @@ class DesktopTests(unittest.TestCase):
         self.assertIn("disabled", self.app.save_button.state())
         self.assertIn("S -> aSb", self.contents(self.app.editor))
 
-    def test_prepare_shows_original_new_start_and_added_rule(self):
+    def test_run_shows_original_and_actual_simplified_grammar(self):
         self.app.run_button.invoke()
         self.assertEqual(self.app.grammar.start, "S")
         self.assertEqual(self.app.preparation.grammar.start, "S_0")
-        self.assertIn("S_0 \u2192 S", self.contents(self.app.prepared_view))
-        self.assertTrue(self.app.prepared_view.tag_ranges("added"))
+        self.assertEqual(self.app.pipeline_result.snapshots[-1].stage, "remove_units")
+        self.assertNotIn("S_0 -> S", self.contents(self.app.result_view))
+        self.assertEqual(
+            read_document_text(self.contents(self.app.result_view)),
+            self.app.pipeline_result.snapshots[-1].grammar,
+        )
+        self.assertTrue(self.app.result_view.tag_ranges("added"))
         self.assertIn("Added S_0 -> S.", self.contents(self.app.feedback))
         self.assertNotIn("disabled", self.app.save_button.state())
 
@@ -90,15 +95,18 @@ class DesktopTests(unittest.TestCase):
     def test_validate_alone_leaves_start_preparation_pending(self):
         self.assertTrue(self.app.validate_input())
         self.assertIsNone(self.app.preparation)
-        self.assertIn("Click Run", self.contents(self.app.prepared_view))
+        self.assertIn("Click Run", self.contents(self.app.result_view))
 
     def test_walkthrough_shows_tuples_while_workspace_shows_grammar(self):
         self.app.run_input()
         self.app.walkthrough_index = 1
         self.app._render_walkthrough()
         self.assertIn("Production('S', ())", self.contents(self.app.walkthrough_text))
-        self.assertIn("S_0 \u2192 S", self.contents(self.app.prepared_view))
-        self.assertTrue(self.app.prepared_view.tag_ranges("added"))
+        self.assertEqual(
+            read_document_text(self.contents(self.app.result_view)),
+            self.app.pipeline_result.snapshots[-1].grammar,
+        )
+        self.assertTrue(self.app.result_view.tag_ranges("added"))
 
     def test_edit_clears_results_and_disables_saving(self):
         self.app.run_input()
@@ -106,13 +114,13 @@ class DesktopTests(unittest.TestCase):
         self.assertIsNone(self.app.grammar)
         self.assertIsNone(self.app.preparation)
         self.assertIn("disabled", self.app.save_button.state())
-        self.assertNotIn("S_0", self.contents(self.app.prepared_view))
+        self.assertNotIn("S_0", self.contents(self.app.result_view))
         self.assertTrue(self.app.dirty)
 
     def test_queued_edit_cannot_save_a_stale_result(self):
         self.app.run_input()
         self.edit_input("S -> a\n", deliver_event=False)
-        self.app.save_prepared()
+        self.app.save_result()
         self.save_dialog.assert_not_called()
         self.assertIsNone(self.app.preparation)
 
@@ -143,13 +151,13 @@ class DesktopTests(unittest.TestCase):
         self.edit_input("S -> a |")
         self.assertFalse(self.app.run_input())
         self.assertIsNone(self.app.preparation)
-        self.assertNotIn("S_0", self.contents(self.app.prepared_view))
+        self.assertNotIn("S_0", self.contents(self.app.result_view))
 
     def test_no_change_case_has_no_added_rule_highlight(self):
         self.app._replace_input("S -> a | epsilon")
         self.app.run_input()
         self.assertFalse(self.app.preparation.added)
-        self.assertFalse(self.app.prepared_view.tag_ranges("added"))
+        self.assertFalse(self.app.result_view.tag_ranges("added"))
         self.assertIn("No new start", self.app.status.get())
 
     def test_repeat_prepare_does_not_add_another_wrapper(self):
@@ -187,13 +195,15 @@ class DesktopTests(unittest.TestCase):
             self.assertEqual(self.app.loaded_path, path.resolve())
             self.assertFalse(self.app.dirty)
 
-    def test_save_prepared_roundtrips_as_grammar_text(self):
+    def test_save_result_roundtrips_after_both_steven_steps(self):
         self.app.run_input()
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "prepared.cfg"
             self.save_dialog.return_value = str(path)
-            self.app.save_prepared()
-            self.assertEqual(read_document(path), self.app.preparation.grammar)
+            self.app.save_result()
+            self.assertEqual(
+                read_document(path), self.app.pipeline_result.snapshots[-1].grammar
+            )
 
     def test_saves_reject_non_cfg_names_without_writing(self):
         self.app.run_input()
@@ -201,7 +211,7 @@ class DesktopTests(unittest.TestCase):
             path = Path(folder) / "output.json"
             self.save_dialog.return_value = str(path)
             self.app.save_input()
-            self.app.save_prepared()
+            self.app.save_result()
             self.assertFalse(path.exists())
             self.assertEqual(self.error_dialog.call_count, 2)
 
@@ -213,7 +223,7 @@ class DesktopTests(unittest.TestCase):
             self.app._load_path(path)
             self.app.run_input()
             self.save_dialog.return_value = str(path)
-            self.app.save_prepared()
+            self.app.save_result()
             self.assertEqual(path.read_bytes(), original)
             self.error_dialog.assert_called_once()
 

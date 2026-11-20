@@ -8,6 +8,7 @@ from pathlib import Path
 import struct
 import subprocess
 import sys
+from prepare_devin import main as prepare_devin_examples
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -60,6 +61,7 @@ def execute(arguments, expected):
 
 
 def main():
+    prepare_devin_examples()
     OUTPUT.mkdir(exist_ok=True)
     for name, filename, status in CASES:
         original = (ROOT / filename).read_text(encoding="utf-8")
@@ -89,7 +91,9 @@ def main():
         ),
         ("test_results", ["-m", "unittest", "discover", "-s", "tests", "-v"], 0),
         ("role2_cases", ["tools/check_role2.py", "--list-cases"], 0),
-        ("role2_pending", ["tools/check_role2.py", "src.simplify_grammar"], 2),
+        ("role2_results", ["tools/check_role2.py"], 0),
+        ("role3_cases", ["tools/check_role3.py", "--list-cases"], 0),
+        ("role3_pending", ["tools/check_role3.py"], 2),
     ):
         (OUTPUT / (name + ".txt")).write_text(
             execute(arguments, status), encoding="utf-8"

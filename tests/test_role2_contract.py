@@ -1,4 +1,4 @@
-"""Check the handoff tests themselves; Steven's implementation is still pending.
+"""Check Steven's real functions and the tests that guard them.
 
 Known answers below are fixture lookups, not conversion code. Broken callbacks
 show that a stub or lost epsilon cannot get a false passing result.
@@ -55,18 +55,20 @@ class Role2HandoffTests(unittest.TestCase):
                     },
                     {case.prepared.start} if () in case.words else set(),
                 )
-        indirect = contract.EXAMPLES[1]
+        indirect = next(
+            case for case in contract.EXAMPLES if case.name == "Indirect epsilon"
+        )
         self.assertEqual(nullable_variables(indirect.prepared), {"A", "C"})
 
     def test_all_checks_accept_the_known_stage_answers(self):
         result, output = self.run_checks(known_answer("epsilon"), known_answer("units"))
         self.assertTrue(result.wasSuccessful(), output)
-        self.assertEqual(result.testsRun, 24)
+        self.assertEqual(result.testsRun, 3 * len(contract.EXAMPLES))
         self.assertFalse(result.skipped)
 
     def test_none_stubs_fail_every_check(self):
         result, output = self.run_checks(lambda grammar: None, lambda grammar: None)
-        self.assertEqual(len(result.failures), 24, output)
+        self.assertEqual(len(result.failures), 3 * len(contract.EXAMPLES), output)
         self.assertFalse(result.errors)
         self.assertIn("Return a Grammar", output)
 
@@ -85,13 +87,25 @@ class Role2HandoffTests(unittest.TestCase):
             )
 
         result, output = self.run_checks(
-            lose_epsilon, known_answer("units"), contract.EXAMPLES[3:4]
+            lose_epsilon,
+            known_answer("units"),
+            tuple(
+                case
+                for case in contract.EXAMPLES
+                if case.name == "Epsilon under the prepared start"
+            ),
         )
         self.assertEqual(len(result.failures), 2, output)
 
     def test_unit_cycle_noop_is_rejected_even_when_epsilon_step_is_correct(self):
         result, output = self.run_checks(
-            known_answer("epsilon"), lambda grammar: grammar, contract.EXAMPLES[2:3]
+            known_answer("epsilon"),
+            lambda grammar: grammar,
+            tuple(
+                case
+                for case in contract.EXAMPLES
+                if case.name == "Unit cycle with an exit"
+            ),
         )
         self.assertEqual(len(result.failures), 2, output)
 
@@ -104,7 +118,7 @@ class Role2HandoffTests(unittest.TestCase):
             with self.subTest(error=error), redirect_stderr(output), patch(
                 "tools.check_role2.importlib.import_module", side_effect=error
             ):
-                self.assertEqual(check_role2.main(["src.simplify_grammar"]), 2)
+                self.assertEqual(check_role2.main(["cfg_toolkit.simplify_grammar"]), 2)
                 self.assertIn("No simplification checks passed", output.getvalue())
 
     def test_runner_returns_failure_for_none_functions(self):
@@ -114,8 +128,10 @@ class Role2HandoffTests(unittest.TestCase):
         with redirect_stdout(output), redirect_stderr(output), patch(
             "tools.check_role2.importlib.import_module", return_value=module
         ):
-            self.assertEqual(check_role2.main(["src.simplify_grammar"]), 1)
-        self.assertIn("FAILED (failures=24)", output.getvalue())
+            self.assertEqual(check_role2.main(["cfg_toolkit.simplify_grammar"]), 1)
+        self.assertIn(
+            "FAILED (failures={})".format(3 * len(contract.EXAMPLES)), output.getvalue()
+        )
 
 
 if __name__ == "__main__":

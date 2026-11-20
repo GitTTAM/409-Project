@@ -48,13 +48,39 @@ Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped va
 
 The start variable does not occur on any RHS; no new start is needed.
 
+3. Steven Yang: remove epsilon productions
+------------------------------------------
+G = (V, Sigma, R, S)
+V = {Expr, Tail, Term}
+Sigma = {"+", "id"}
+S = Expr
+R (5 distinct rules):
+  Expr -> Term
+  Expr -> Term Tail
+  Tail -> "+" Term
+  Tail -> "+" Term Tail
+  Term -> "id"
+Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped variable names).
+
+4. Steven Yang: remove unit productions
+---------------------------------------
+G = (V, Sigma, R, S)
+V = {Expr, Tail, Term}
+Sigma = {"+", "id"}
+S = Expr
+R (5 distinct rules):
+  Expr -> Term Tail
+  Expr -> "id"
+  Tail -> "+" Term
+  Tail -> "+" Term Tail
+  Term -> "id"
+Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped variable names).
+
 Matt Lawrence (grammar input): COMPLETE for this input.
 
-Conversion status: PENDING transformations from Steven Yang and Devin Finn; this is not a final CNF result.
+Steven Yang (epsilon and unit removal): COMPLETE for this input.
 
-  Pending: Steven Yang: remove epsilon productions
-
-  Pending: Steven Yang: remove unit productions
+Conversion status: PENDING transformations from Devin Finn; this is not a final CNF result.
 
   Pending: Devin Finn: remove useless symbols
 

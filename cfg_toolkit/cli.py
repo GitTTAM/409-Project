@@ -51,7 +51,7 @@ def _choose_display(requested: str, input_format: str) -> str:
 
 
 def render_setup(grammar, display: str = "tokens") -> str:
-    """Show the original grammar, start preparation, and work still pending."""
+    """Show every available step and list the stages still missing."""
     result = run_pipeline(grammar)
     formatter = _formatter(display)
     parts = []
@@ -60,8 +60,9 @@ def render_setup(grammar, display: str = "tokens") -> str:
         if snapshot.explanation:
             parts.append(snapshot.explanation)
     parts.append("Matt Lawrence (grammar input): COMPLETE for this input.")
+    parts.append("Steven Yang (epsilon and unit removal): COMPLETE for this input.")
     parts.append(
-        "Conversion status: PENDING transformations from Steven Yang and Devin Finn; this is not a final CNF result."
+        "Conversion status: PENDING transformations from Devin Finn; this is not a final CNF result."
     )
     labels = dict(STAGES)
     parts.extend("  Pending: " + labels[stage] for stage in result.pending)
@@ -71,7 +72,7 @@ def render_setup(grammar, display: str = "tokens") -> str:
 def _build_parser() -> argparse.ArgumentParser:
     """Keep command options in one place so new ones are easy to find."""
     parser = argparse.ArgumentParser(
-        description="Option 1: grammar input, validation, display, and start preparation."
+        description="Option 1: read a grammar, prepare its start, and remove epsilon and unit rules."
     )
     parser.add_argument(
         "grammar", nargs="?", help="path to a JSON or classroom grammar file"
@@ -100,10 +101,16 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="FILE",
         help="original grammar for --check-cnf epsilon comparison",
     )
-    parser.add_argument(
+    saves = parser.add_mutually_exclusive_group()
+    saves.add_argument(
         "--save-prepared",
         metavar="FILE",
         help="save prepared grammar; .cfg/.txt/.grammar use lecture notation, otherwise JSON",
+    )
+    saves.add_argument(
+        "--save-result",
+        metavar="FILE",
+        help="save the latest completed step as input for Devin's work",
     )
     parser.add_argument(
         "--format",
@@ -130,10 +137,11 @@ def _check_arguments(parser, args) -> None:
         )
     if args.source and not args.check_cnf:
         parser.error("--source requires --check-cnf")
-    if args.save_prepared and (args.demo or args.demo_lecture or args.check_cnf):
-        parser.error("--save-prepared requires a grammar file or --stdin")
-    if args.save_prepared and not (args.grammar or args.stdin):
-        parser.error("--save-prepared requires a grammar file or --stdin")
+    saving = args.save_prepared or args.save_result
+    if saving and (args.demo or args.demo_lecture or args.check_cnf):
+        parser.error("saving requires a grammar file or --stdin")
+    if saving and not (args.grammar or args.stdin):
+        parser.error("saving requires a grammar file or --stdin")
     if (args.demo or args.demo_lecture) and args.format != "auto":
         parser.error(
             "--format applies to a grammar file or --stdin; demos select their fixture formats"
@@ -188,19 +196,24 @@ def _run_input(args) -> int:
     display = _choose_display(args.display, input_format)
 
     # Check before printing success or writing anything to the output file.
-    if args.save_prepared and args.grammar:
+    output = args.save_prepared or args.save_result
+    if output and args.grammar:
         source_path = Path(args.grammar).resolve()
-        output_path = Path(args.save_prepared).resolve()
+        output_path = Path(output).resolve()
         if source_path == output_path:
             raise GrammarError(
-                "--save-prepared must not overwrite the input grammar; choose another file"
+                "output must not overwrite the input grammar; choose another file"
             )
 
     print(render_setup(grammar, display))
     if args.save_prepared:
-        prepared = run_pipeline(grammar).snapshots[-1].grammar
+        prepared = run_pipeline(grammar, {}).snapshots[-1].grammar
         write_document(prepared, args.save_prepared)
         print("\nSaved start-prepared grammar to {}".format(args.save_prepared))
+    if args.save_result:
+        current = run_pipeline(grammar).snapshots[-1].grammar
+        write_document(current, args.save_result)
+        print("\nSaved grammar after unit removal to {}".format(args.save_result))
     return 0
 
 

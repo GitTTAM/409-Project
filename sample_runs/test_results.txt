@@ -9,6 +9,8 @@ test_conflicting_and_incomplete_arguments_rejected (test_cli.CliTests.test_confl
 test_help_and_module_entry_point (test_cli.CliTests.test_help_and_module_entry_point) ... ok
 test_json_stdin (test_cli.CliTests.test_json_stdin) ... ok
 test_original_cannot_be_overwritten_by_prepared_output (test_cli.CliTests.test_original_cannot_be_overwritten_by_prepared_output) ... ok
+test_result_export_cannot_overwrite_input (test_cli.CliTests.test_result_export_cannot_overwrite_input) ... ok
+test_result_export_is_actual_output_for_devin (test_cli.CliTests.test_result_export_is_actual_output_for_devin) ... ok
 test_single_grammar_and_prepared_file_roundtrip (test_cli.CliTests.test_single_grammar_and_prepared_file_roundtrip) ... ok
 test_three_demo_runs_display_both_student1_stages (test_cli.CliTests.test_three_demo_runs_display_both_student1_stages) ... ok
 test_unicode_start_and_errors_survive_ascii_console (test_cli.CliTests.test_unicode_start_and_errors_survive_ascii_console) ... ok
@@ -24,6 +26,7 @@ test_report_identifies_offending_rule_and_equivalence_limit (test_cnf_validator.
 test_start_epsilon_accepted_when_in_source (test_cnf_validator.CnfValidatorTests.test_start_epsilon_accepted_when_in_source) ... ok
 test_unit_rule_rejected (test_cnf_validator.CnfValidatorTests.test_unit_rule_rejected) ... ok
 test_unproductive_cycle_is_not_nullable (test_cnf_validator.CnfValidatorTests.test_unproductive_cycle_is_not_nullable) ... ok
+test_saved_examples_roundtrip_and_preserve_original_words (test_devin_examples.DevinExampleTests.test_saved_examples_roundtrip_and_preserve_original_words) ... ok
 test_clear_removes_input_and_previous_results (test_gui.DesktopTests.test_clear_removes_input_and_previous_results) ... ok
 test_each_example_loads_and_only_intentional_bad_input_fails (test_gui.DesktopTests.test_each_example_loads_and_only_intentional_bad_input_fails) ... ok
 test_edit_clears_results_and_disables_saving (test_gui.DesktopTests.test_edit_clears_results_and_disables_saving) ... ok
@@ -33,13 +36,13 @@ test_invalid_input_clears_a_previous_valid_result (test_gui.DesktopTests.test_in
 test_json_paste_is_rejected_with_a_grammar_example (test_gui.DesktopTests.test_json_paste_is_rejected_with_a_grammar_example) ... ok
 test_no_change_case_has_no_added_rule_highlight (test_gui.DesktopTests.test_no_change_case_has_no_added_rule_highlight) ... ok
 test_practice_answer_and_actual_test_can_be_opened (test_gui.DesktopTests.test_practice_answer_and_actual_test_can_be_opened) ... ok
-test_prepare_shows_original_new_start_and_added_rule (test_gui.DesktopTests.test_prepare_shows_original_new_start_and_added_rule) ... ok
 test_prepared_output_cannot_overwrite_the_open_input_file (test_gui.DesktopTests.test_prepared_output_cannot_overwrite_the_open_input_file) ... ok
 test_queued_edit_cannot_save_a_stale_result (test_gui.DesktopTests.test_queued_edit_cannot_save_a_stale_result) ... ok
 test_queued_edit_is_reparsed_before_preparing (test_gui.DesktopTests.test_queued_edit_is_reparsed_before_preparing) ... ok
 test_repeat_prepare_does_not_add_another_wrapper (test_gui.DesktopTests.test_repeat_prepare_does_not_add_another_wrapper) ... ok
+test_run_shows_original_and_actual_simplified_grammar (test_gui.DesktopTests.test_run_shows_original_and_actual_simplified_grammar) ... ok
 test_save_input_preserves_text_and_updates_file_tracking (test_gui.DesktopTests.test_save_input_preserves_text_and_updates_file_tracking) ... ok
-test_save_prepared_roundtrips_as_grammar_text (test_gui.DesktopTests.test_save_prepared_roundtrips_as_grammar_text) ... ok
+test_save_result_roundtrips_after_both_steven_steps (test_gui.DesktopTests.test_save_result_roundtrips_after_both_steven_steps) ... ok
 test_saves_reject_non_cfg_names_without_writing (test_gui.DesktopTests.test_saves_reject_non_cfg_names_without_writing) ... ok
 test_startup_does_not_claim_validation_or_allow_saving_a_result (test_gui.DesktopTests.test_startup_does_not_claim_validation_or_allow_saving_a_result) ... ok
 test_unsaved_changes_can_cancel_replacing_input (test_gui.DesktopTests.test_unsaved_changes_can_cancel_replacing_input) ... ok
@@ -145,6 +148,14 @@ test_noop_functions_fail_when_nullable_rules_need_removal (test_role2_contract.R
 test_runner_fails_clearly_for_missing_module_or_function (test_role2_contract.Role2HandoffTests.test_runner_fails_clearly_for_missing_module_or_function) ... ok
 test_runner_returns_failure_for_none_functions (test_role2_contract.Role2HandoffTests.test_runner_returns_failure_for_none_functions) ... ok
 test_unit_cycle_noop_is_rejected_even_when_epsilon_step_is_correct (test_role2_contract.Role2HandoffTests.test_unit_cycle_noop_is_rejected_even_when_epsilon_step_is_correct) ... ok
+test_fixtures_preserve_the_original_words (test_role3_contract.Role3HandoffTests.test_fixtures_preserve_the_original_words) ... ok
+test_known_answers_pass_all_stage_and_pipeline_checks (test_role3_contract.Role3HandoffTests.test_known_answers_pass_all_stage_and_pipeline_checks) ... ok
+test_missing_module_reports_pending_and_nonzero_status (test_role3_contract.Role3HandoffTests.test_missing_module_reports_pending_and_nonzero_status) ... ok
+test_none_stubs_cannot_pass (test_role3_contract.Role3HandoffTests.test_none_stubs_cannot_pass) ... ok
+test_noop_binary_function_fails_for_a_long_rule (test_role3_contract.Role3HandoffTests.test_noop_binary_function_fails_for_a_long_rule) ... ok
+test_default_pipeline_stops_only_when_devins_work_is_needed (test_simplify_grammar.SimplificationTests.test_default_pipeline_stops_only_when_devins_work_is_needed) ... ok
+test_fixed_generated_grammars_preserve_words_and_stage_conditions (test_simplify_grammar.SimplificationTests.test_fixed_generated_grammars_preserve_words_and_stage_conditions) ... ok
+test_real_functions_pass_every_role2_stage_check (test_simplify_grammar.SimplificationTests.test_real_functions_pass_every_role2_stage_check) ... ok
 test_all_examples_preserve_bounded_terminal_languages (test_start_symbol.StartSymbolTests.test_all_examples_preserve_bounded_terminal_languages) ... ok
 test_cycles_and_nullable_variables_preserve_language (test_start_symbol.StartSymbolTests.test_cycles_and_nullable_variables_preserve_language) ... ok
 test_epsilon_only_and_empty_languages_survive (test_start_symbol.StartSymbolTests.test_epsilon_only_and_empty_languages_survive) ... ok
@@ -155,6 +166,6 @@ test_recursive_nullable_start_gets_fresh_wrapper (test_start_symbol.StartSymbolT
 test_start_in_any_rhs_position_is_detected (test_start_symbol.StartSymbolTests.test_start_in_any_rhs_position_is_detected) ... ok
 
 ----------------------------------------------------------------------
-Ran 150 tests in 7.877s
+Ran 161 tests in 15.242s
 
 OK

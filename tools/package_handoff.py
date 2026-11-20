@@ -7,12 +7,14 @@ from zipfile import ZIP_DEFLATED, ZipFile
 ROOT = Path(__file__).resolve().parents[1]
 ARCHIVE = ROOT / "Option1_Student1_Foundation.zip"
 ROOT_FILES = (
+    ".gitignore",
     ".python-version",
     "main.py",
     "gui.py",
     "start_gui.bat",
     "README.md",
     "INTEGRATION.md",
+    "DEVIN_HANDOFF.md",
     "STUDENT1_WALKTHROUGH.md",
 )
 FOLDERS = ("cfg_toolkit", "examples", "tests", "tools", "sample_runs")

@@ -1,6 +1,6 @@
 ﻿# 409 CFG
 
-Enter a grammar, check it, and prepare its start variable.
+Enter a grammar, prepare its start, and remove epsilon and unit rules.
 
 ## Team
 
@@ -24,8 +24,8 @@ Use Python 3.14 with Tkinter. No extra packages needed.
 ## Use
 
 1. Type or paste grammar rules, or choose an example and click **Load example**.
-2. Click **Run** to check the input and prepare the start.
-3. Click **Save prepared** to save the result as a `.cfg` file.
+2. Click **Run** to check input, prepare the start, and run Steven's steps.
+3. Click **Save result** to save the grammar ready for Devin as a `.cfg` file.
 
 **Save input** saves your editor text. **Clear** empties the editor and results.
 Editing the input clears old results, so saved output always matches the current grammar.
@@ -47,7 +47,7 @@ S -> aSb | epsilon
 
 For a quick grammar, just enter `S -> aSb | epsilon`.
 
-Green marks added rules. Blue marks changed declarations. If input is invalid,
+Green marks new or changed rules. Blue marks changed declarations. If input is invalid,
 the message explains what to fix and highlights the line when available.
 
 ## Learn the code
@@ -58,12 +58,14 @@ Close Help to return to your input and results.
 
 See [Matt Lawrence's walkthrough](STUDENT1_WALKTHROUGH.md) for the practice guide.
 Teammates adding conversion code can use [INTEGRATION.md](INTEGRATION.md).
+Devin can start with [DEVIN_HANDOFF.md](DEVIN_HANDOFF.md).
 
 ## Current progress
 
-Grammar input, validation, and start preparation work. Matt's integration setup
-and CNF checker are in place. Full conversion still needs Steven's and Devin's
-transformation modules, followed by final integration and team testing.
+Matt's input and start setup and Steven's simplification run together in the
+CLI and GUI. Each CLI run shows the grammar after every finished step.
+Devin's three CNF steps are still pending. The current result is his input,
+not a finished CNF conversion.
 
 ## Tests and saved runs
 
@@ -75,21 +77,22 @@ Desktop tests need Tkinter and a display. They skip when either is unavailable.
 
 Examples are in `examples/`; saved output and screenshots are in [sample_runs/](sample_runs/).
 
-Steven's separate checks cover eight grammars, including nullable repeats, unit
-cycles, and keeping epsilon under the prepared start. To see the cases:
+Run Steven's complete checks (nine grammars, three checks each):
 
 ```powershell
-python3.14 tools/check_role2.py --list-cases
+python3.14 tools/check_role2.py
 ```
 
-Run them against his module once it uses the shared `Grammar` model:
+List Devin's cases, then run his checks once his module is ready:
 
 ```powershell
-python3.14 tools/check_role2.py src.simplify_grammar
+python3.14 tools/check_role3.py --list-cases
+python3.14 tools/check_role3.py
 ```
 
-His functions are still pending here. Missing code or failed checks return a
-failure status. See [INTEGRATION.md](INTEGRATION.md) for the interface and expected rules.
+Missing code returns status 2 and counts as pending. A failed check returns 1.
+The normal suite also checks Steven's real functions against 250 generated
+grammars and checks that unfinished or broken functions cannot pass the handoff tests.
 
 To refresh runs and rebuild the ZIP:
 
@@ -102,5 +105,9 @@ For the command-line version:
 
 ```powershell
 python3.14 main.py examples/lecture/03_matching.cfg
+python3.14 main.py examples/02_start_on_rhs.json --save-result for_devin.cfg
 ```
+
+The older `--save-prepared` option still saves only the start-setup step.
+Three ready-made inputs for Devin are in [examples/for_devin/](examples/for_devin/).
 

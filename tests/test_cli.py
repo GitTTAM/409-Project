@@ -9,6 +9,7 @@ import tempfile
 import unittest
 
 from cfg_toolkit import prepare_start, read_grammar
+from cfg_toolkit.pipeline import run_pipeline
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,6 +48,29 @@ class CliTests(unittest.TestCase):
             self.assertEqual(
                 read_grammar(target), prepare_start(read_grammar(source)).grammar
             )
+
+    def test_result_export_is_actual_output_for_devin(self):
+        source = ROOT / "examples" / "02_start_on_rhs.json"
+        with tempfile.TemporaryDirectory(dir=str(ROOT)) as folder:
+            target = Path(folder) / "after_units.json"
+            result = self.run_cli(str(source), "--save-result", str(target))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            expected = run_pipeline(read_grammar(source)).snapshots[-1].grammar
+            self.assertEqual(read_grammar(target), expected)
+            self.assertIn(
+                "Steven Yang (epsilon and unit removal): COMPLETE", result.stdout
+            )
+            self.assertNotIn("Pending: Steven", result.stdout)
+            self.assertIn("Pending: Devin", result.stdout)
+
+    def test_result_export_cannot_overwrite_input(self):
+        with tempfile.TemporaryDirectory(dir=str(ROOT)) as folder:
+            target = Path(folder) / "input.json"
+            original = (ROOT / "examples" / "02_start_on_rhs.json").read_bytes()
+            target.write_bytes(original)
+            result = self.run_cli(str(target), "--save-result", str(target))
+            self.assertEqual(result.returncode, 2)
+            self.assertEqual(target.read_bytes(), original)
 
     def test_original_cannot_be_overwritten_by_prepared_output(self):
         with tempfile.TemporaryDirectory(dir=str(ROOT)) as folder:

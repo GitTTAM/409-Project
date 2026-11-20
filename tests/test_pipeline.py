@@ -18,7 +18,7 @@ def unchanged(grammar):
 class IntegrationContractTests(unittest.TestCase):
     def test_missing_teammates_stop_after_student1(self):
         original = read_grammar(ROOT / "examples" / "02_start_on_rhs.json")
-        result = run_pipeline(original)
+        result = run_pipeline(original, {})
         self.assertEqual(
             [snapshot.stage for snapshot in result.snapshots],
             ["original", "prepare_start"],

@@ -12,6 +12,7 @@ from typing import Callable, Mapping, Optional, Tuple
 from .cnf_validator import CnfReport, validate_cnf
 from .model import Grammar
 from .start_symbol import prepare_start
+from .simplify_grammar import eliminate_ε_prods, eliminate_unit_prods
 
 
 Transform = Callable[[Grammar], Grammar]
@@ -23,6 +24,14 @@ STAGES = (
     ("replace_terminals", "Devin Finn: replace terminals in long RHSs"),
     ("binarize", "Devin Finn: split long RHSs into binary rules"),
 )
+
+
+def team_transforms():
+    """The real functions connected so far. Add Devin's three functions here."""
+    return {
+        "remove_epsilon": eliminate_ε_prods,
+        "remove_units": eliminate_unit_prods,
+    }
 
 
 @dataclass(frozen=True)
@@ -58,11 +67,11 @@ def run_pipeline(
 ) -> PipelineResult:
     """Run registered functions in assignment order.
 
-    For example, transforms={"remove_epsilon": your_epsilon_function} connects
-    Steven Yang's first step. Keep the prepared start name and do not add terminals.
-    Each returned Grammar checks its own symbols and productions on creation.
+    With no mapping, run the available team functions. An explicit mapping
+    selects exactly those stages; {} runs only input and start preparation.
+    Keep the prepared start name and do not add terminals.
     """
-    transforms = {} if transforms is None else dict(transforms)
+    transforms = team_transforms() if transforms is None else dict(transforms)
     unknown_stages = set(transforms) - {stage for stage, _ in STAGES}
     if unknown_stages:
         raise ValueError(

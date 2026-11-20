@@ -4,6 +4,7 @@ Actual interpreter: C:\Users\mlawrence\AppData\Local\Python\pythoncore-3.14-64\p
 Exit status: 0
 
 Repeated nullable symbols
+Epsilon cycle
 Indirect epsilon
 Unit cycle with an exit
 Epsilon under the prepared start

@@ -1,7 +1,7 @@
 """Checks Steven can run against his real epsilon and unit-removal functions.
 
-These are kept outside normal test discovery because the functions are not here
-yet. tools/check_role2.py loads his module and runs every case below.
+tools/check_role2.py runs every case against the real functions. The ordinary
+test suite also runs them, so unit and pipeline checks cannot quietly disappear.
 """
 
 from dataclasses import dataclass
@@ -51,7 +51,7 @@ EXAMPLES = (
         "Epsilon cycle",
         "S -> A A\nA -> a | B\nB -> A | epsilon",
         "S -> A A | A | epsilon\nA -> a | B\nB -> A",
-        "S -> A A | a | epsilon\nA -> a",
+        "S -> A A | a | epsilon\nA -> a\nB -> a",
         {(), ("a",), ("a", "a")},
     ),
     _example(
@@ -132,8 +132,6 @@ class Role2Check(unittest.TestCase):
         self.assertFalse(result.start_on_rhs, "The prepared start must stay off RHSs.")
         self.assertLessEqual(result.variables, source.variables)
         self.assertLessEqual(result.terminals, source.terminals)
-        print("result:", result.productions)
-        print("expect:", expected.productions)
         self.assertEqual(result.productions, expected.productions, "Unexpected rules.")
         self.assertEqual(derives_epsilon(result), derives_epsilon(source))
         self.assertEqual(bounded_language(result), bounded_language(source))
@@ -194,8 +192,5 @@ def make_suite(remove_epsilon, remove_units, examples=EXAMPLES):
     return unittest.TestSuite(
         Role2Check(case, stage, remove_epsilon, remove_units)
         for case in examples
-        for stage in (
-            "epsilon",
-            #   "units", "pipeline"
-        )
+        for stage in ("epsilon", "units", "pipeline")
     )

@@ -40,13 +40,38 @@ Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped va
 
 The old start occurs on an RHS. Added fresh start S_0 and rule S_0 -> S. This preserves every terminal word, including epsilon. The temporary unit rule will be removed by Steven Yang.
 
+3. Steven Yang: remove epsilon productions
+------------------------------------------
+G = (V, Sigma, R, S)
+V = {S, S_0}
+Sigma = {"a", "b"}
+S = S_0
+R (4 distinct rules):
+  S_0 -> epsilon
+  S_0 -> S
+  S -> "a" S "b"
+  S -> "a" "b"
+Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped variable names).
+
+4. Steven Yang: remove unit productions
+---------------------------------------
+G = (V, Sigma, R, S)
+V = {S, S_0}
+Sigma = {"a", "b"}
+S = S_0
+R (5 distinct rules):
+  S_0 -> epsilon
+  S_0 -> "a" S "b"
+  S_0 -> "a" "b"
+  S -> "a" S "b"
+  S -> "a" "b"
+Notation: epsilon is the empty RHS []; quoted names are terminals (or escaped variable names).
+
 Matt Lawrence (grammar input): COMPLETE for this input.
 
-Conversion status: PENDING transformations from Steven Yang and Devin Finn; this is not a final CNF result.
+Steven Yang (epsilon and unit removal): COMPLETE for this input.
 
-  Pending: Steven Yang: remove epsilon productions
-
-  Pending: Steven Yang: remove unit productions
+Conversion status: PENDING transformations from Devin Finn; this is not a final CNF result.
 
   Pending: Devin Finn: remove useless symbols
 
